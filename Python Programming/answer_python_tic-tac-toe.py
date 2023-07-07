@@ -9,6 +9,8 @@ def print_board(board):
         print(i, ' '.join(row))  # print row index followed by the row
     print('~~~~~~~~~~~~~')
 
+
+
 def check_win(board):
     # check horizontal, vertical and diagonal lines
     lines = [
@@ -27,8 +29,64 @@ def check_win(board):
         return 'O'
     return None
 
+
+
 def get_valid_moves(board):
     return [(i, j) for i in range(3) for j in range(3) if board[i][j] == '.']   # only give empty spots
+
+
+
+def player_turn(player,board):
+    while True:
+        try:
+            row = int(input(f'Player \'{player}\' turn: \nWhich row? '))
+            col = int(input('Which column? '))
+        except ValueError:
+            print("Invalid input. Please enter a number.")
+            continue
+        
+        if (row, col) not in get_valid_moves(board):
+            print("Invalid move. Please try again.")
+            continue
+
+
+        confirmation = input(f'Place \'{player}\' at row {row}, column {col}? [y/n] ').lower()
+        if confirmation == 'n':
+            continue
+        elif confirmation == 'y':
+            board[row][col] = player
+            print('Move placed!')
+            break
+        else:
+            print("Please only input 'y' or 'n'.")
+            continue
+    
+    print('Current board:')
+    print_board(board)
+
+
+
+def pc_turn(computer, board):
+    print(f'Computer \'{computer}\' turn: computer move registered.')
+    row, col = random.choice(get_valid_moves(board))
+    board[row][col] = computer
+
+    print('Current board:')
+    print_board(board)
+
+
+
+def check_game_status(board,role):
+    outcome = check_win(board)
+    if outcome == role:
+        print(f'\'{outcome}\' wins!')
+        return True
+
+    if len(get_valid_moves(board)) == 0:
+        print('The game ended in a stalemate.')
+        return True
+
+    return False
 
 
 
@@ -52,56 +110,35 @@ def tic_tac_toe():
         print('\nCurrent board:')
         print_board(board)
 
-        # player's move
-        while True:
-            try:
-                row = int(input(f'Player \'{player}\' turn: \nWhich row? '))
-                col = int(input('Which column? '))
-            except ValueError:
-                print("Invalid input. Please enter a number.")
-                continue
-            
-            if (row, col) not in get_valid_moves(board):
-                print("Invalid move. Please try again.")
-                continue
-
-
-            confirmation = input(f'Place \'{player}\' at row {row}, column {col}? [y/n] ').lower()
-            if confirmation == 'n':
-                continue
-            elif confirmation == 'y':
-                board[row][col] = player
-                print('Move placed!')
+        if player == 'X':
+            # player's move
+            player_turn(player,board)           
+            if check_game_status(board, player):
                 break
-            else:
-                print("Please only input 'y' or 'n'.")
-                continue
 
-        print('Current board:')
-        print_board(board)
-        if check_win(board) == player:
-            print(f'\'{player}\' wins!')
-            break
+            # Computer's move: just randomly move
+            time.sleep(2)
+            pc_turn(computer, board)
+            if check_game_status(board, computer):
+                break
 
-        
-        # Computer's move: just randomly move
-        time.sleep(2)
-        print(f'Computer \'{computer}\' turn: computer move registered.')
-        row, col = random.choice(get_valid_moves(board))
-        board[row][col] = computer
-        print_board(board)
 
-        if check_win(board) == computer:
-            print(f'\'{computer}\' wins!')
-            break
+        elif player == 'O':
+
+            # Computer's move: just randomly move
+            time.sleep(2)
+            pc_turn(computer, board)
+            if check_game_status(board, computer):
+                break
+
+            # player's move
+            player_turn(player,board)           
+            if check_game_status(board, player):
+                break
 
 
         round_counter += 1
-
         time.sleep(2)
 
-        if len(get_valid_moves(board)) == 0:
-            print('The game ended in a stalemate.')
-            break
 
 tic_tac_toe()
